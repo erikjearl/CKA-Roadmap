@@ -112,6 +112,8 @@ kubectl run pvc-consumer --image=busybox:1.36 --restart=Never \
     }
   }'
 # Once the pod is scheduled, STATUS transitions to Bound
+# WaitForFirstConsumer keeps the PVC Pending until the pod is scheduled; wait for Bound:
+kubectl wait --for=jsonpath='{.status.phase}'=Bound pvc/pvc-dynamic --timeout=60s
 kubectl get pvc pvc-dynamic
 ```
 
@@ -195,6 +197,9 @@ kubectl get pv pv-retain
 # ─────────────────────────────────────────────────────────────────────────────
 
 # Create a PVC requesting ReadWriteOnce
+# Note: storageClassName: "" means no dynamic provisioner is used.
+# This PVC will remain Pending unless a matching static PV exists or a default StorageClass
+# is configured. That is EXPECTED here — the exercise demonstrates access-mode syntax only.
 kubectl apply -f - <<EOF
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -221,12 +226,18 @@ EOF
 
 ```bash
 # Create a StorageClass with allowVolumeExpansion: true
+# Note: volume expansion requires a CSI provisioner that implements the NodeExpandVolume RPC.
+# hostpath.csi.k8s.io is used here (CSI hostpath driver, suitable for lab clusters).
+# On cloud clusters use the cloud CSI driver instead, e.g.:
+#   ebs.csi.aws.com  (AWS EBS CSI)
+#   pd.csi.storage.gke.io  (GCE PD CSI)
+# The Rancher local-path provisioner is NOT a CSI driver and cannot expand volumes.
 kubectl apply -f - <<EOF
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
   name: expandable-sc
-provisioner: rancher.io/local-path
+provisioner: hostpath.csi.k8s.io
 volumeBindingMode: WaitForFirstConsumer
 reclaimPolicy: Delete
 allowVolumeExpansion: true
@@ -263,15 +274,20 @@ kubectl wait --for=jsonpath='{.status.phase}'=Bound pvc/pvc-expand --timeout=60s
 # Expand the PVC by patching the requested storage to a larger value
 kubectl patch pvc pvc-expand -p '{"spec":{"resources":{"requests":{"storage":"1Gi"}}}}'
 
-# Note: filesystem resize inside the pod (e.g. ext4 resize2fs) may require a pod restart
-# for some volume drivers. The API capacity field updates immediately; the on-disk
-# filesystem catches up on the next pod mount.
+# Note: patching .spec.resources.requests.storage updates the request immediately,
+# but .status.capacity.storage is updated ASYNCHRONOUSLY by the external resizer controller
+# and may lag behind. For filesystem-backed volumes (ext4, xfs), the in-pod resize also
+# requires the pod to be restarted (or a new pod to mount the volume) before the filesystem
+# reflects the new size.
 ```
 
 ```bash
 # verify
-# CAPACITY should reflect the new size (1Gi)
-kubectl get pvc pvc-expand
+# CAPACITY may take a moment to reflect the new size — the external resizer is asynchronous.
+# Watch until CAPACITY shows 1Gi:
+kubectl get pvc pvc-expand -w
+# Or poll manually:
+# kubectl get pvc pvc-expand
 ```
 
 </p>
@@ -285,6 +301,8 @@ kubectl get pvc pvc-expand
 
 ```bash
 # Uses pvc-hostpath from exercise 1 (create it first if skipped)
+# Note: hostPath PVs are node-local. In a multi-node cluster both writer and reader pods
+# must land on the SAME node — add a nodeSelector or nodeName to each pod spec to pin them.
 
 # Create a writer pod that mounts pvc-hostpath and writes a test file
 kubectl apply -f - <<EOF
