@@ -1,5 +1,22 @@
 # Mock Exams & Practice Cadence
 
+## In-repo Mock Exams
+
+Self-graded mock exams that run against a live cluster. No external accounts required.
+
+| Exam | Time | Tasks | Grader | Reset |
+|------|------|-------|--------|-------|
+| [Mock 01](mocks/mock-01.md) | 45 min | 6 (Deployment, RBAC, NetworkPolicy, PV/PVC, PriorityClass, HPA) | `bash mocks/grade-mock-01.sh` | `bash mocks/reset-mock-01.sh` |
+
+**Workflow:**
+1. Open `mocks/mock-01.md` and start a 45-minute timer.
+2. Complete all tasks against your cluster (only kubernetes.io docs allowed).
+3. When time expires, run `bash mocks/grade-mock-01.sh` to see your score.
+4. Review `mocks/mock-01-solutions.md` for any tasks you missed.
+5. Run `bash mocks/reset-mock-01.sh` to clean up before retaking.
+
+---
+
 ## The Read → Drill → Timed-Mock Loop
 
 The CKA is performance-based — typing speed and recall both matter. Work through this cycle for each domain:
