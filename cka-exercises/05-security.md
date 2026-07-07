@@ -144,18 +144,18 @@ kubectl config set-credentials alice \
   --embed-certs=true
 
 # Create a new context pointing to the same cluster with alice's identity
-kubectl config set-context alice@cluster \
+kubectl config set-context alice@${CLUSTER} \
   --cluster=${CLUSTER} \
   --user=alice
 
 # Switch the active context to alice
-kubectl config use-context alice@cluster
+kubectl config use-context alice@${CLUSTER}
 ```
 
 ```bash
 # verify
 kubectl config current-context
-# Expected output: alice@cluster
+# Expected output: alice@${CLUSTER}
 ```
 
 </p>
@@ -201,7 +201,7 @@ kubectl auth can-i list pods --as=alice -n default
 
 ```bash
 # Step 1: generate a 32-byte base64-encoded AES-CBC key (run on control-plane node)
-head -c 32 /dev/urandom | base64
+head -c 32 /dev/urandom | base64 | tr -d '\n'
 # Copy the output — it becomes the value of secret: below
 
 # Step 2: create the encryption config directory and file on the control-plane node
@@ -211,14 +211,14 @@ cat <<'EOF' > /etc/kubernetes/enc/encryption-config.yaml
 apiVersion: apiserver.config.k8s.io/v1
 kind: EncryptionConfiguration
 resources:
-- resources:
-  - secrets
-  providers:
-  - aescbc:
-      keys:
-      - name: key1
-        secret: <base64key>   # replace with output from Step 1
-  - identity: {}              # fallback allows reading pre-existing unencrypted secrets
+  - resources:
+      - secrets
+    providers:
+      - aescbc:
+          keys:
+            - name: key1
+              secret: <base64key>   # replace with output from Step 1
+      - identity: {}              # fallback allows reading pre-existing unencrypted secrets
 EOF
 
 # Step 3: edit the kube-apiserver static pod manifest to reference the config file.
