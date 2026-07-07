@@ -2,7 +2,7 @@
 
 The CKA exam allows one browser tab open to **kubernetes.io** (and its sub-domains). Bookmark these URLs in your exam browser before the clock starts. They are grouped by CKA domain so you can navigate fast under pressure.
 
-> Tip: open each URL once before the exam to verify the bookmark resolves. The exam browser uses a whitelist — kubernetes.io/docs, kubernetes.io/blog, and github.com/kubernetes are typically allowed.
+> Tip: open each URL once before the exam to verify the bookmark resolves. The exam browser uses a whitelist — only kubernetes.io (docs, blog, and reference) is permitted. No GitHub, no Stack Overflow.
 
 ---
 
@@ -10,7 +10,7 @@ The CKA exam allows one browser tab open to **kubernetes.io** (and its sub-domai
 
 | Topic | URL |
 |-------|-----|
-| kubectl cheat sheet | https://kubernetes.io/docs/reference/kubectl/cheatsheet/ |
+| kubectl cheat sheet | https://kubernetes.io/docs/reference/kubectl/quick-reference/ |
 | kubectl reference | https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands |
 | API resource types | https://kubernetes.io/docs/reference/kubernetes-api/ |
 

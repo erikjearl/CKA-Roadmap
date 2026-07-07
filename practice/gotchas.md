@@ -28,7 +28,7 @@ Once a RoleBinding or ClusterRoleBinding is created, the `roleRef` field cannot 
 
 ```
 # Control plane
-kubectl drain <cp-node> --ignore-daemonsets
+kubectl drain <cp-node> --ignore-daemonsets --delete-emptydir-data
 apt-mark unhold kubeadm && apt-get install kubeadm=1.35.x-* && apt-mark hold kubeadm
 kubeadm upgrade plan
 kubeadm upgrade apply v1.35.x
@@ -37,7 +37,7 @@ systemctl daemon-reload && systemctl restart kubelet
 kubectl uncordon <cp-node>
 
 # Each worker (repeat per node)
-kubectl drain <node> --ignore-daemonsets --delete-emissive-data
+kubectl drain <node> --ignore-daemonsets --delete-emptydir-data
 ssh <node>
 apt-mark unhold kubeadm && apt-get install kubeadm=1.35.x-* && apt-mark hold kubeadm
 kubeadm upgrade node
