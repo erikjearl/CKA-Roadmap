@@ -42,7 +42,8 @@ kubectl get deployment nginx-app -o jsonpath='{.spec.template.spec.containers[0]
 
 ```bash
 # Inspect the revision history — each kubectl set image creates a new revision.
-# CHANGE-CAUSE is populated only when --record was used or the annotation is set manually.
+# CHANGE-CAUSE is populated by setting the annotation manually:
+#   kubectl annotate deployment/nginx-app kubernetes.io/change-cause="<msg>"
 kubectl rollout history deployment/nginx-app
 
 # Roll back to the immediately previous revision (revision N-1)
@@ -206,7 +207,7 @@ kubectl get pod ssd-pod -o wide
 ```bash
 # Create a high-priority PriorityClass.
 # scheduling.k8s.io/v1 is the stable GA API (since v1.14).
-# value: 1000000 — well above the system-node-critical class (2000000 is the absolute max).
+# value: 1000000 — a high user-defined priority. User values must be < 1000000000; reserved system classes like system-node-critical are ~2000001000.
 # globalDefault: false — pods must explicitly reference this class; it is not applied globally.
 kubectl apply -f - <<EOF
 apiVersion: scheduling.k8s.io/v1
@@ -380,7 +381,9 @@ EOF
 # Create a valid pod that fits within the quota (uses LimitRange defaults for resources)
 kubectl run ok-pod --image=nginx:1.27 -n quota-demo
 
-# Attempt to create a pod that exceeds the quota: requests.cpu "2" > remaining quota "1"
+# Attempt to create a pod that exceeds the quota: ok-pod already uses 100m (LimitRange
+# defaultRequest), so 100m + 950m = 1050m > 1000m requests.cpu quota → rejected BY QUOTA.
+# limits.cpu "1" stays within the LimitRange max.cpu "1" → passes LimitRange admission.
 kubectl apply -n quota-demo -f - <<EOF
 apiVersion: v1
 kind: Pod
@@ -392,15 +395,15 @@ spec:
     image: nginx:1.27
     resources:
       requests:
-        cpu: "2"        # 2 cores requested — exceeds the 1-core requests.cpu hard limit
+        cpu: "950m"     # 100m (ok-pod) + 950m = 1050m > 1000m quota → rejected by ResourceQuota
         memory: 128Mi
       limits:
-        cpu: "2"
+        cpu: "1"        # ≤ LimitRange max.cpu (1) → passes LimitRange
         memory: 256Mi
 EOF
 # Expected output:
 # Error from server (Forbidden): error when creating "STDIN": pods "over-quota-pod" is
-# forbidden: exceeded quota: compute-quota, requested: requests.cpu=2, used: requests.cpu=100m,
+# forbidden: exceeded quota: compute-quota, requested: requests.cpu=950m, used: requests.cpu=100m,
 # limited: requests.cpu=1
 ```
 
