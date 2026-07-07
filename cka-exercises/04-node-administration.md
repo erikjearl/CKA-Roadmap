@@ -106,7 +106,7 @@ kubectl drain <node-name> --ignore-daemonsets --delete-emptydir-data
 # verify
 # Node status should show SchedulingDisabled in the STATUS column
 kubectl get nodes
-# Example output: node01   Ready,SchedulingDisabled   control-plane   ...
+# Example output: node01   Ready,SchedulingDisabled   <none>   5d   v1.35.0
 
 # Workload pods that were on <node-name> should now be Running on other nodes
 kubectl get pods -o wide
@@ -153,6 +153,7 @@ ssh <node-name>
 
 # Method B — kubectl debug node (when SSH is unavailable)
 # kubectl debug node/<node-name> -it --image=busybox -- chroot /host bash
+# image availability varies; ubuntu also works
 
 # Step 2: write the pod manifest to the staticPodPath (run on the node)
 cat <<'EOF' > /etc/kubernetes/manifests/static-nginx.yaml
