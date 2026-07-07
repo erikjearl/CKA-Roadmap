@@ -1,0 +1,14 @@
+# Never commit real cluster secrets or artifacts
+*.db            # etcd snapshots
+*.kubeconfig
+kubeconfig
+admin.conf
+pki/
+*.key
+*.crt
+*.pem
+*.token
+
+# OS / editor
+.DS_Store
+*.swp
