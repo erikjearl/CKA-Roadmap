@@ -102,7 +102,7 @@ Each domain file follows this exact structure (defined canonically in `TEMPLATE.
 kubernetes.io > Documentation > Tasks > Administer a Cluster > [Operating etcd Clusters](url)
 kubernetes.io > Documentation > Reference > kubectl CLI > [kubectl Cheat Sheet](url)
 
-### Back up the etcd datastore to /opt/etcd-backup.db  ⭐⭐
+### Back up the etcd datastore to /opt/etcd-backup.db  `(med)`
 <details><summary>show</summary>
 <p>
 
@@ -122,7 +122,8 @@ ETCDCTL_API=3 etcdctl --write-out=table snapshot status /opt/etcd-backup.db
 
 **Conventions:**
 - **Task headings** are imperative statements (`### Do X...`), phrased like exam tasks.
-- **Difficulty badge** after the heading: `⭐` easy / `⭐⭐` moderate / `⭐⭐⭐` hard.
+- **Difficulty badge** after the heading, as a plain-text tag: `(easy)` / `(med)` / `(hard)`.
+  (Stars are reserved for the ⭐ "new in 2025" topic marker; 🔴🟡🟢 for the confidence tracker.)
 - **Solutions** hidden in `<details><summary>show</summary>` with fenced `bash`/`yaml` blocks.
   Show imperative-first approaches; alternatives welcome (as in dgkanatsios).
 - **Verify step** — included **only where it catches real mistakes** (end-state non-obvious or
