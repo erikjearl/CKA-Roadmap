@@ -9,7 +9,7 @@ Every file in `cka-exercises/` follows this structure. Copy it when adding a sec
 
 ## Quick Reference — Documentation
 kubernetes.io > Documentation > Tasks > <Area> > [<Page Title>](https://kubernetes.io/docs/...)
-kubernetes.io > Documentation > Reference > kubectl CLI > [kubectl Cheat Sheet](https://kubernetes.io/docs/reference/kubectl/cheatsheet/)
+kubernetes.io > Documentation > Reference > kubectl CLI > [kubectl Cheat Sheet](https://kubernetes.io/docs/reference/kubectl/quick-reference/)
 
 ### <Imperative task phrased like an exam prompt>  `(med)`
 <details><summary>show</summary>

@@ -390,7 +390,7 @@ kubectl -n kube-system rollout restart deploy/coredns
 ```bash
 # NOTE: NetworkPolicies are only enforced if the CNI supports them.
 # Calico and Cilium enforce them; Flannel does NOT (policies are silently ignored).
-# On the Pi lab cluster, install Calico instead of Flannel to drill these.
+# The lab default (cluster-setup/install-cni.sh) installs Calico, which enforces them.
 
 # Setup: a namespace with a web pod and service
 kubectl create namespace np-demo

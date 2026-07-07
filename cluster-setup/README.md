@@ -4,7 +4,11 @@ Reusable kubeadm artifacts for the home lab cluster (Raspberry Pi arm64 nodes + 
 
 ## Mixed-arch caveat
 
-The cluster runs a mix of `arm64` (Pi) and `amd64` (PC) nodes. Always use **multi-arch images** for system components and CNI add-ons — single-arch images will fail to pull on the wrong node. Flannel (`kube-flannel.yml`) publishes multi-arch manifests and works fine here. etcd running on Pi SD cards is noticeably slower than SSD, but performance is adequate for exam practice.
+The cluster runs a mix of `arm64` (Pi) and `amd64` (PC) nodes. Always use **multi-arch images** for system components and CNI add-ons — single-arch images will fail to pull on the wrong node. Both Calico and Flannel publish multi-arch manifests and work fine here. etcd running on Pi SD cards is noticeably slower than SSD, but performance is adequate for exam practice.
+
+## CNI choice
+
+`install-cni.sh` installs **Calico** by default because it enforces NetworkPolicy — the drills in `../cka-exercises/03-networking.md` depend on that. `./install-cni.sh flannel` installs Flannel instead (lighter on the Pis), but be aware Flannel **silently ignores NetworkPolicies**, so those drills will falsely appear to allow all traffic.
 
 ## Bootstrap sequence
 
@@ -38,8 +42,8 @@ Perform these steps in order from the control-plane node:
 
 | Script | Description |
 |---|---|
-| `install-cni.sh` | Applies the Flannel CNI manifest (multi-arch); nodes transition to Ready after this step. |
-| `join-node.sh` | Wrapper run on each worker node that executes the `kubeadm join` command passed as its first argument. |
+| `install-cni.sh` | Installs the CNI (Calico by default, `flannel` optional; both multi-arch, versions pinned); nodes transition to Ready after this step. |
+| `join-node.sh` | Wrapper run on each worker node (as root) that executes the `kubeadm join` command passed as its first argument. |
 | `reset-cluster.sh` | Destructively resets a node to pre-kubeadm state via `kubeadm reset`; used by break-fix drills (see `../practice/break-fix/`) to restore a clean lab. |
 | `backup-etcd.sh` | Takes an etcd snapshot with `etcdctl snapshot save`; used for etcd backup/restore practice (see `../cka-exercises/02-installation-cluster-mgmt.md`). |
 
