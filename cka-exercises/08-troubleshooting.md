@@ -20,27 +20,30 @@ kubectl get nodes
 #   NAME        STATUS     ROLES    AGE   VERSION
 #   worker-01   NotReady   <none>   10d   v1.35.0
 
-# SSH to the affected node, then check the kubelet service status:
+# SSH to the affected node, then diagnose:
+# Step 1 — check the kubelet service status:
 systemctl status kubelet
 
-# Stream kubelet logs to identify the root cause — most failures surface here:
+# Step 2 — read the last 50 kubelet log lines to identify the root cause:
 #   - swap enabled (kubelet refuses to start with swap on by default)
 #   - bad /var/lib/kubelet/config.yaml (unknown flag, malformed YAML)
 #   - container runtime socket unreachable (containerd or crio stopped)
-journalctl -u kubelet --no-pager | tail -50
+journalctl -u kubelet -n 50
 
 # If the container runtime is suspected, check it separately:
 systemctl status containerd
 
-# Start the kubelet and enable it to survive reboots:
-systemctl start kubelet
-systemctl enable kubelet
+# Step 3 — fix the ROOT CAUSE first (pick what the logs show), THEN start the kubelet:
+#   - swap enabled:           swapoff -a   (and comment the swap line in /etc/fstab)
+#   - container runtime down: systemctl enable --now containerd
+#   - bad kubelet config:     fix /var/lib/kubelet/config.yaml
 
-# If the failure was caused by swap being enabled, disable it immediately:
+# Example: if swap is the root cause:
 swapoff -a
 # Comment out or remove the swap entry in /etc/fstab to persist after reboot.
-# Then restart the kubelet:
-systemctl restart kubelet
+
+# Step 4 — AFTER fixing the root cause, start and enable the kubelet:
+systemctl enable --now kubelet
 ```
 
 ```bash
@@ -255,6 +258,7 @@ kubectl -n kube-system get configmap coredns -o yaml
 # Step 5 — test resolution from an ephemeral pod to confirm the failure:
 kubectl run dns-test --image=busybox:1.36 --restart=Never --rm -it -- \
   nslookup kubernetes.default
+# non-interactive alternative: kubectl run dns-test --image=busybox:1.36 --restart=Never -- nslookup kubernetes.default; kubectl logs dns-test; kubectl delete pod dns-test
 # Expected when healthy: returns the ClusterIP of the kubernetes Service
 
 # Common fixes:
@@ -269,9 +273,13 @@ kubectl -n kube-system rollout restart deployment coredns
 # verify
 kubectl run dns-verify --image=busybox:1.36 --restart=Never --rm -it -- \
   nslookup kubernetes.default
-# Expected output contains:
-#   Server:    <cluster-dns-IP>   (commonly 10.96.0.10)
-#   Address:   10.96.0.1         (ClusterIP of the kubernetes Service)
+# non-interactive alternative: kubectl run dns-test --image=busybox:1.36 --restart=Never -- nslookup kubernetes.default; kubectl logs dns-test; kubectl delete pod dns-test
+# Expected output (healthy):
+#   Server:    10.96.0.10:53
+#   Address 1: 10.96.0.10 kube-dns.kube-system.svc.cluster.local
+#
+#   Name:      kubernetes.default
+#   Address 1: 10.96.0.1 kubernetes.default.svc.cluster.local
 ```
 
 </p>
