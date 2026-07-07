@@ -16,3 +16,4 @@ pki/
 # Local tooling / machine-specific config (do not publish)
 .claude/settings.local.json
 .superpowers/
+docs/superpowers/
