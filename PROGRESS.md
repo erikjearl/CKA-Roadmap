@@ -79,6 +79,9 @@ Before drilling exercises, complete these first:
 | Service endpoint diagnosis (selector/label mismatch) | 🔴 |
 | Pod-to-pod connectivity & CNI identification | 🔴 |
 | DNS resolution troubleshooting | 🔴 |
+| NetworkPolicy — default-deny ingress | 🔴 |
+| NetworkPolicy — namespace-scoped allow rule | 🔴 |
+| NetworkPolicy — egress restriction (DNS-only) | 🔴 |
 
 ---
 
@@ -148,3 +151,7 @@ Before drilling exercises, complete these first:
 | DNS resolution failure (CoreDNS down or misconfigured) | 🔴 |
 | Service with no endpoints (selector/targetPort mismatch) | 🔴 |
 | Resource usage (kubectl top nodes/pods) | 🔴 |
+| Deployment stuck mid-rollout (ProgressDeadlineExceeded) | 🔴 |
+| OOMKilled diagnosis & resource-limit fix | 🔴 |
+| API server unreachable (connection refused recovery) | 🔴 |
+| Sorted output to file (--sort-by, jsonpath) | 🔴 |

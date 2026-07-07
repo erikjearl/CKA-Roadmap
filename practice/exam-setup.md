@@ -102,15 +102,41 @@ set tabstop=2
 
 > The PSI exam browser runs in a locked-down desktop. tmux availability varies — confirm at the start rather than spending time configuring it.
 
-## Context / Namespace Shortcuts
+## Context / Namespace Discipline (multi-cluster)
+
+The exam runs against **multiple clusters**; every task names its context. The #1
+silent point-loss is doing correct work against the wrong cluster or namespace.
+Make this a reflex, not a decision:
 
 ```bash
-# Every task in the exam specifies a context — switch first, every time
+# Once, at exam start: survey what exists
+kubectl config get-contexts
+# CURRENT   NAME       CLUSTER    AUTHINFO   NAMESPACE
+# *         k8s-c1     cluster1   admin-c1
+
+# Before EVERY task — paste the context command the question gives you:
 kubectl config use-context <ctx>
 
-# Set a default namespace for the session
+# If the task lives in one namespace, pin it so you can't forget -n:
 kubectl config set-context --current --namespace=<ns>
 
-# Check current context
+# Paranoia check before you start typing (aliasable to `kcc`):
 kubectl config current-context
+```
+
+**The ritual:** read task → `use-context` → pin namespace → work → verify →
+reset namespace to default before the next task:
+
+```bash
+kubectl config set-context --current --namespace=default
+```
+
+**Drill it:** on your lab cluster, create two extra contexts pointing at the same
+cluster but different default namespaces, then practice hopping between them —
+the muscle memory transfers directly:
+
+```bash
+kubectl config set-context drill-a --cluster=<cluster> --user=<user> --namespace=dev
+kubectl config set-context drill-b --cluster=<cluster> --user=<user> --namespace=prod
+kubectl config use-context drill-a && kubectl config current-context
 ```

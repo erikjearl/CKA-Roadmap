@@ -51,3 +51,11 @@ Track your confidence across all exercises in **[PROGRESS.md](PROGRESS.md)**.
 | [`practice/`](practice/) | Exam-prep layer — setup script, bookmarks, mock-exam cadence, day-of checklist, and mistake log. See [`practice/README.md`](practice/README.md). |
 | [`cluster-setup/`](cluster-setup/) | Scripts and notes for standing up a local multi-node study cluster (kubeadm on a mixed-arch Raspberry Pi + PC lab, adaptable to VMs or kind). |
 | [`PROGRESS.md`](PROGRESS.md) | Confidence tracker — red / yellow / green per exercise, updated as you drill. |
+
+---
+
+## Credits & license
+
+Exercise format inspired by [dgkanatsios/CKAD-exercises](https://github.com/dgkanatsios/CKAD-exercises). Licensed under the [MIT License](LICENSE).
+
+*Kubernetes and CKA are trademarks of the Linux Foundation / CNCF. This is an independent study project, not affiliated with or endorsed by either.*

@@ -359,3 +359,141 @@ kubectl top pods -A --containers
 
 </p>
 </details>
+
+---
+
+### Diagnose a Deployment stuck mid-rollout (new pods never become Ready) `(med)`
+<details><summary>show</summary>
+<p>
+
+```bash
+# Symptom: rollout hangs, then reports a deadline error
+kubectl rollout status deployment/<name>
+# error: deployment "<name>" exceeded its progress deadline
+
+# 1. Compare ReplicaSets — the new RS exists but has 0 ready replicas
+kubectl get rs -l app=<name>
+
+# 2. Read the Deployment conditions (look for ProgressDeadlineExceeded)
+kubectl describe deployment <name>
+
+# 3. Inspect a pod from the NEW ReplicaSet — the root cause lives in its events:
+kubectl describe pod <new-rs-pod>
+#   - ImagePullBackOff / ErrImagePull  -> bad image name or tag
+#   - readiness probe failed           -> wrong probe port/path
+#   - Insufficient cpu/memory          -> requests don't fit any node
+
+# 4. Fix the actual cause, e.g. a typo'd image tag:
+kubectl set image deployment/<name> <container>=<image>:<correct-tag>
+
+# Escape hatch if asked to restore service instead of fixing forward:
+kubectl rollout undo deployment/<name>
+```
+
+```bash
+# verify
+kubectl rollout status deployment/<name>
+# Expected: deployment "<name>" successfully rolled out
+```
+
+</p>
+</details>
+
+---
+
+### Find and fix a pod that keeps getting OOMKilled `(med)`
+<details><summary>show</summary>
+<p>
+
+```bash
+# Symptom: restarts climbing; container terminates with exit code 137.
+
+# 1. Confirm the kill reason — Last State shows OOMKilled
+kubectl describe pod <pod>
+#   Last State:  Terminated
+#     Reason:    OOMKilled
+#     Exit Code: 137
+
+# Or pull it programmatically:
+kubectl get pod <pod> \
+  -o jsonpath='{.status.containerStatuses[0].lastState.terminated.reason}'
+
+# 2. Compare actual usage against the limit (needs metrics-server)
+kubectl top pod <pod> --containers
+
+# 3. Raise the memory limit (or fix the app). For a Deployment-managed pod:
+kubectl set resources deployment/<name> -c <container> \
+  --limits=memory=512Mi --requests=memory=256Mi
+# The Deployment rolls new pods with the higher limit; restarts should stop.
+# NOTE: for a bare pod, resources are immutable — recreate it instead.
+```
+
+</p>
+</details>
+
+---
+
+### Recover access when kubectl cannot reach the API server (connection refused) `(hard)`
+<details><summary>show</summary>
+<p>
+
+```bash
+# Symptom: The connection to the server <ip>:6443 was refused
+
+# 1. Rule out a client-side cause FIRST — wrong context or kubeconfig:
+kubectl config current-context
+kubectl config view --minify | grep server
+# The server address must point at the control-plane IP:6443.
+
+# 2. On the control-plane node: is the apiserver container even running?
+sudo crictl ps -a | grep kube-apiserver
+# Exited/absent -> inspect why:
+sudo crictl logs $(sudo crictl ps -a -q --name kube-apiserver | head -1) 2>&1 | tail -20
+
+# 3. Check the kubelet (it launches the apiserver static pod):
+sudo systemctl status kubelet
+sudo journalctl -u kubelet -n 50
+
+# 4. Validate the static pod manifest wasn't broken (bad flag, bad indentation):
+sudo cat /etc/kubernetes/manifests/kube-apiserver.yaml
+# Fix any error; the kubelet re-creates the pod automatically.
+
+# 5. Confirm the port is listening again:
+sudo ss -tlnp | grep 6443
+```
+
+```bash
+# verify
+kubectl get nodes
+# Expected: node list returns — API server reachable again
+```
+
+</p>
+</details>
+
+---
+
+### List all pods sorted by creation time and save the output to a file `(easy)`
+<details><summary>show</summary>
+<p>
+
+```bash
+# A recurring exam task shape: "produce this output, write it to <path>".
+
+# Sort every pod in the cluster by creation timestamp and save it:
+kubectl get pods -A --sort-by=.metadata.creationTimestamp > /opt/pods-by-age.txt
+
+# Names only, one per line, via jsonpath:
+kubectl get pods -A \
+  -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}' > /opt/pod-names.txt
+
+# Custom columns (name + node + status), sorted by node:
+kubectl get pods -A --sort-by=.spec.nodeName \
+  -o custom-columns=NAME:.metadata.name,NODE:.spec.nodeName,STATUS:.status.phase
+
+# Gotcha: write to the exact path the question gives, on the node it names —
+# some tasks expect the file on a specific host, not your exam terminal.
+```
+
+</p>
+</details>

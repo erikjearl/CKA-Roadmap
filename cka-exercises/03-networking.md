@@ -1,9 +1,10 @@
 # Networking
 
-> **New/deeper vs CKAD:** CNI internals, CoreDNS config, Service routing/endpoints, Ingress, the Gateway API, and network troubleshooting — deeper than CKAD's app-level networking.
+> **New/deeper vs CKAD:** CNI internals, CoreDNS config, Service routing/endpoints, Ingress, the Gateway API, NetworkPolicy enforcement, and network troubleshooting — deeper than CKAD's app-level networking.
 
 ## Quick Reference — Documentation
 kubernetes.io > Documentation > Concepts > Services, Load Balancing, and Networking > [Service](https://kubernetes.io/docs/concepts/services-networking/service/)
+kubernetes.io > Documentation > Concepts > Services, Load Balancing, and Networking > [Network Policies](https://kubernetes.io/docs/concepts/services-networking/network-policies/)
 kubernetes.io > Documentation > Concepts > Services, Load Balancing, and Networking > [Ingress](https://kubernetes.io/docs/concepts/services-networking/ingress/)
 kubernetes.io > Documentation > Concepts > Services, Load Balancing, and Networking > [Gateway API](https://kubernetes.io/docs/concepts/services-networking/gateway/)
 kubernetes.io > Documentation > Reference > kubectl CLI > [kubectl Cheat Sheet](https://kubernetes.io/docs/reference/kubectl/quick-reference/)
@@ -375,6 +376,143 @@ kubectl run dns-debug --image=busybox:1.36 --rm -it --restart=Never -- sh
 # If CoreDNS has a bad Corefile, check and fix the ConfigMap then restart:
 kubectl -n kube-system edit configmap coredns
 kubectl -n kube-system rollout restart deploy/coredns
+```
+
+</p>
+</details>
+
+---
+
+### Apply a default-deny ingress NetworkPolicy to a namespace and prove traffic is blocked `(med)`
+<details><summary>show</summary>
+<p>
+
+```bash
+# NOTE: NetworkPolicies are only enforced if the CNI supports them.
+# Calico and Cilium enforce them; Flannel does NOT (policies are silently ignored).
+# On the Pi lab cluster, install Calico instead of Flannel to drill these.
+
+# Setup: a namespace with a web pod and service
+kubectl create namespace np-demo
+kubectl -n np-demo run web --image=nginx:1.27 --labels=app=web --port=80
+kubectl -n np-demo expose pod web --port=80
+```
+
+```yaml
+# Default-deny ALL ingress to every pod in the namespace:
+# empty podSelector selects all pods; Ingress in policyTypes with no rules = deny all.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-ingress
+  namespace: np-demo
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+```
+
+```bash
+# verify — the request must TIME OUT (blocked), not connect
+kubectl -n np-demo run test --image=busybox:1.36 --restart=Never --rm -it -- \
+  wget -qO- --timeout=2 http://web
+# Expected: "wget: download timed out" (exit code 1) — ingress is blocked
+```
+
+</p>
+</details>
+
+---
+
+### Allow ingress to app=web pods only from a specific namespace on TCP 80 `(hard)`
+<details><summary>show</summary>
+<p>
+
+```bash
+# Setup: a client namespace (in addition to np-demo from the previous exercise)
+kubectl create namespace frontend
+```
+
+```yaml
+# Allow rule layered on top of the default-deny policy.
+# kubernetes.io/metadata.name is set automatically on every namespace —
+# use it to select namespaces without labeling them yourself.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-frontend-to-web
+  namespace: np-demo
+spec:
+  podSelector:
+    matchLabels:
+      app: web
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: frontend
+      ports:
+        - protocol: TCP
+          port: 80
+```
+
+```bash
+# verify — allowed from frontend, still blocked from np-demo itself
+kubectl -n frontend run test --image=busybox:1.36 --restart=Never --rm -it -- \
+  wget -qO- --timeout=2 http://web.np-demo
+# Expected: nginx welcome HTML (allowed)
+
+kubectl -n np-demo run test --image=busybox:1.36 --restart=Never --rm -it -- \
+  wget -qO- --timeout=2 http://web
+# Expected: timeout (np-demo pods do not match the allow rule)
+```
+
+</p>
+</details>
+
+---
+
+### Restrict a pod's egress to DNS only and prove other egress is blocked `(hard)`
+<details><summary>show</summary>
+<p>
+
+```yaml
+# Lock a pod down so it can resolve names but cannot open other connections.
+# Without the DNS exception, an egress policy breaks ALL name resolution —
+# a classic exam trap when asked to "restrict egress".
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: egress-dns-only
+  namespace: np-demo
+spec:
+  podSelector:
+    matchLabels:
+      app: web
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - namespaceSelector: {}          # any namespace…
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns          # …but only the CoreDNS pods
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+```
+
+```bash
+# verify — DNS resolves, but outbound HTTP from the selected pod times out
+kubectl -n np-demo exec web -- nslookup kubernetes.default.svc.cluster.local
+# Expected: resolves successfully (DNS egress allowed)
+
+kubectl -n np-demo exec web -- timeout 2 curl -s http://kubernetes.default.svc.cluster.local
+# Expected: exits non-zero / times out (non-DNS egress blocked)
 ```
 
 </p>
