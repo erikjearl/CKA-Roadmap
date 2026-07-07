@@ -27,7 +27,7 @@ kubectl exec -it <pod> -- /bin/sh
 kubectl logs <pod> -c <container> --previous
 ```
 
-Gotchas: `--restart=Never` is required to get a Pod (not a Deployment). `kubectl run` without `--restart=Never` was deprecated for non-Pod objects; always specify.
+Gotchas: `--restart=Never` sets `restartPolicy: Never` (good for one-off task Pods); omitting it gives `restartPolicy: Always`. Since k8s 1.18 `kubectl run` always creates a Pod — the flag no longer controls resource type.
 
 ---
 
@@ -130,7 +130,7 @@ spec:
   storageClassName: standard
 ```
 
-Mount via `volumes[].persistentVolumeClaim.claimName` + `volumeMounts`. Access modes: `RWO` (single node r/w), `ROX` (multi-node read-only), `RWX` (multi-node r/w). PV reclaim policy: `Retain`, `Delete`, `Recycle`.
+Mount via `volumes[].persistentVolumeClaim.claimName` + `volumeMounts`. Access modes: `RWO` (single node r/w), `ROX` (multi-node read-only), `RWX` (multi-node r/w). PV reclaim policy: `Retain`, `Delete` (`Recycle` was removed in v1.25 — use dynamic provisioning instead).
 
 Gotchas: PVC stays in `Pending` if no matching PV exists or StorageClass can't provision. Bound PVC cannot change `storageClassName`.
 
@@ -161,7 +161,7 @@ spec:
   podSelector:
     matchLabels:
       role: db
-  policyTypes: [Ingress, Egress]
+  policyTypes: [Ingress]
   ingress:
   - from:
     - podSelector:
@@ -190,7 +190,7 @@ helm list -n <namespace>
 helm get values my-release
 ```
 
-Gotchas: `helm install` fails if the release name already exists — use `--replace` or `helm upgrade --install`. Values are overridden with `--set` (dot notation) or `--values file.yaml`.
+Gotchas: `helm install` fails if the release name already exists — use `helm upgrade --install` as the canonical idempotent approach. `--replace` only re-uses the name of a previously *deleted* release, not a live one. Values are overridden with `--set` (dot notation) or `--values file.yaml`.
 
 ---
 
