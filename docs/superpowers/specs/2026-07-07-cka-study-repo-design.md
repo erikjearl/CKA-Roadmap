@@ -52,7 +52,9 @@ the official domain(s) so nothing is missed.
 ```
 cka-roadmap/
 ├── README.md                        # Roadmap: how-to-use, exam format, domain-map → official 5
-│                                    #   (+weights), version banner, progress + 🔴🟡🟢 confidence tracker
+│                                    #   (+weights), version banner; links to PROGRESS.md
+├── PROGRESS.md                      # Standalone checklist + 🔴🟡🟢 confidence column per topic,
+│                                    #   linking into cka-exercises/ and practice/
 ├── TEMPLATE.md                      # Exercise format guide — keeps files consistent as repo grows
 ├── .gitignore                       # Never commit real cluster secrets (see §7)
 │
@@ -123,7 +125,6 @@ ETCDCTL_API=3 etcdctl --write-out=table snapshot status /opt/etcd-backup.db
 **Conventions:**
 - **Task headings** are imperative statements (`### Do X...`), phrased like exam tasks.
 - **Difficulty badge** after the heading, as a plain-text tag: `(easy)` / `(med)` / `(hard)`.
-  (Stars are reserved for the ⭐ "new in 2025" topic marker; 🔴🟡🟢 for the confidence tracker.)
 - **Solutions** hidden in `<details><summary>show</summary>` with fenced `bash`/`yaml` blocks.
   Show imperative-first approaches; alternatives welcome (as in dgkanatsios).
 - **Verify step** — included **only where it catches real mistakes** (end-state non-obvious or
@@ -201,20 +202,24 @@ real cluster certs, tokens, or endpoints baked in.
 
 ---
 
-## 8. README as Tracker
+## 8. README + Progress Tracker
 
-The top-level `README.md` is the entry point and progress tracker:
+**`README.md`** is the entry point (orientation, not tracking):
 - Version banner ("Tracks CKA v1.35 / Kubernetes 1.35").
 - How-to-use (read Quick-Ref docs → drill tasks → verify → log gotchas).
 - Exam format table + domain map (work-file → official domain + weight).
-- A checklist with a **🔴/🟡/🟢 confidence column** per topic, linking into both
-  `cka-exercises/` and `practice/`.
+- A prominent link to `PROGRESS.md`.
+
+**`PROGRESS.md`** is the standalone tracker, kept out of the README so it can be updated
+frequently without churning the landing page:
+- A checklist row per topic with a **🔴/🟡/🟢 confidence column**.
+- Each row links into the relevant `cka-exercises/` section (and `practice/` where applicable).
+- Grouped by the eight work-oriented files; ordered for a sensible study sequence.
 
 ---
 
 ## 9. Explicitly Out of Scope (YAGNI)
 
-- Separate `PROGRESS.md` (the README tracker suffices).
 - Standalone spaced-repetition log (folded into `gotchas.md`).
 - Per-topic subfolders / nested trees (the flat one-file-per-domain model is *why* the
   reference repo worked — do not reintroduce nesting).
