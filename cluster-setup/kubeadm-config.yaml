@@ -1,0 +1,13 @@
+# kubeadm cluster config — mixed arch (Pi arm64 + PC amd64)
+# Replace <PLACEHOLDER> values before use. Do NOT commit real tokens/IPs.
+apiVersion: kubeadm.k8s.io/v1beta4
+kind: InitConfiguration
+localAPIEndpoint:
+  advertiseAddress: "<CONTROL_PLANE_IP>"
+  bindPort: 6443
+---
+apiVersion: kubeadm.k8s.io/v1beta4
+kind: ClusterConfiguration
+kubernetesVersion: "v1.35.0"
+networking:
+  podSubnet: "10.244.0.0/16"   # matches Flannel default; change if using another CNI
