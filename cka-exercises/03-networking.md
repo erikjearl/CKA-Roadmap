@@ -183,7 +183,7 @@ kubectl describe ingress demo-ingress
 # These are NOT present by default — install them if missing.
 
 # Install the standard Gateway API CRDs (idempotent; safe to re-run)
-kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/latest/download/standard-install.yaml
+kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.2.1/standard-install.yaml  # CRDs pre-installed on exam clusters
 
 # Verify a GatewayClass is available (provided by the installed controller)
 kubectl get gatewayclass
@@ -342,6 +342,7 @@ kubectl delete pod pod-a pod-b
 
 ```bash
 # Step 1: resolve a Service DNS name from a temporary pod
+# drop -t if not in an interactive terminal
 kubectl run test --image=busybox:1.36 --rm -it --restart=Never -- nslookup nginx.default.svc.cluster.local
 # Expected: returns the ClusterIP of the nginx Service in the default namespace
 
