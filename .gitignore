@@ -12,3 +12,7 @@ pki/
 # OS / editor
 .DS_Store
 *.swp
+
+# Local tooling / machine-specific config (do not publish)
+.claude/settings.local.json
+.superpowers/
