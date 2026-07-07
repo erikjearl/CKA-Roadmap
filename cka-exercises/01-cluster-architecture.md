@@ -3,11 +3,11 @@
 > **New/deeper vs CKAD:** control-plane internals, etcd operations, CRDs & operators, and cluster extension interfaces — all new/deeper than CKAD.
 
 ## Quick Reference — Documentation
-- kubernetes.io > Documentation > Concepts > Overview > [Kubernetes Components](https://kubernetes.io/docs/concepts/overview/components/)
-- kubernetes.io > Documentation > Tasks > Administer a Cluster > [Operating etcd Clusters for Kubernetes](https://kubernetes.io/docs/tasks/administer-cluster/configure-upgrade-etcd/)
-- kubernetes.io > Documentation > Tasks > Extend Kubernetes > [Custom Resources / CustomResourceDefinitions](https://kubernetes.io/docs/tasks/extend-kubernetes/custom-resources/custom-resource-definitions/)
-- kubernetes.io > Documentation > Reference > kubectl CLI > [kubectl Cheat Sheet](https://kubernetes.io/docs/reference/kubectl/cheatsheet/)
-- kubernetes.io > Documentation > Concepts > Cluster Administration > [Proxies in Kubernetes](https://kubernetes.io/docs/concepts/cluster-administration/proxies/)
+kubernetes.io > Documentation > Concepts > Overview > [Kubernetes Components](https://kubernetes.io/docs/concepts/overview/components/)
+kubernetes.io > Documentation > Tasks > Administer a Cluster > [Operating etcd Clusters for Kubernetes](https://kubernetes.io/docs/tasks/administer-cluster/configure-upgrade-etcd/)
+kubernetes.io > Documentation > Tasks > Extend Kubernetes > [Custom Resources / CustomResourceDefinitions](https://kubernetes.io/docs/tasks/extend-kubernetes/custom-resources/custom-resource-definitions/)
+kubernetes.io > Documentation > Reference > kubectl CLI > [kubectl Cheat Sheet](https://kubernetes.io/docs/reference/kubectl/cheatsheet/)
+kubernetes.io > Documentation > Concepts > Cluster Administration > [Proxies in Kubernetes](https://kubernetes.io/docs/concepts/cluster-administration/proxies/)
 
 ---
 
@@ -61,12 +61,13 @@ kubectl get pod -n kube-system -l component=kube-scheduler -o yaml
 cat /etc/kubernetes/manifests/kube-apiserver.yaml
 
 # Method 2: inspect the running process arguments
-kubectl get pod -n kube-system -l component=kube-apiserver -o jsonpath='{.items[0].spec.containers[0].command}' | tr ',' '\n'
+kubectl get pod -n kube-system -l component=kube-apiserver \
+  -o jsonpath='{range .items[0].spec.containers[0].command[*]}{@}{"\n"}{end}'
 
-# Method 3: exec into the running apiserver container
+# Method 3: read live args from the running apiserver process
 kubectl exec -n kube-system \
   "$(kubectl get pods -n kube-system -l component=kube-apiserver -o name | head -1)" \
-  -- kube-apiserver --help 2>/dev/null | head -50
+  -- cat /proc/1/cmdline | tr '\0' '\n'
 
 # Important flags to know:
 #   --etcd-servers         where etcd lives
