@@ -6,7 +6,7 @@
 kubernetes.io > Documentation > Concepts > Overview > [Kubernetes Components](https://kubernetes.io/docs/concepts/overview/components/)
 kubernetes.io > Documentation > Tasks > Administer a Cluster > [Operating etcd Clusters for Kubernetes](https://kubernetes.io/docs/tasks/administer-cluster/configure-upgrade-etcd/)
 kubernetes.io > Documentation > Tasks > Extend Kubernetes > [Custom Resources / CustomResourceDefinitions](https://kubernetes.io/docs/tasks/extend-kubernetes/custom-resources/custom-resource-definitions/)
-kubernetes.io > Documentation > Reference > kubectl CLI > [kubectl Cheat Sheet](https://kubernetes.io/docs/reference/kubectl/cheatsheet/)
+kubernetes.io > Documentation > Reference > kubectl CLI > [kubectl Cheat Sheet](https://kubernetes.io/docs/reference/kubectl/quick-reference/)
 kubernetes.io > Documentation > Concepts > Cluster Administration > [Proxies in Kubernetes](https://kubernetes.io/docs/concepts/cluster-administration/proxies/)
 
 ---

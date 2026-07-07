@@ -5,7 +5,7 @@
 ## Quick Reference — Documentation
 kubernetes.io > Documentation > Tasks > Monitoring, Logging, and Debugging > [Troubleshooting Clusters](https://kubernetes.io/docs/tasks/debug/debug-cluster/)
 kubernetes.io > Documentation > Tasks > Monitoring, Logging, and Debugging > [Troubleshoot Applications](https://kubernetes.io/docs/tasks/debug/debug-application/)
-kubernetes.io > Documentation > Reference > kubectl CLI > [kubectl Cheat Sheet](https://kubernetes.io/docs/reference/kubectl/cheatsheet/)
+kubernetes.io > Documentation > Reference > kubectl CLI > [kubectl Cheat Sheet](https://kubernetes.io/docs/reference/kubectl/quick-reference/)
 
 ---
 

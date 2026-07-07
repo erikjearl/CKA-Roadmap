@@ -73,7 +73,7 @@ The CKA exam allows one browser tab open to **kubernetes.io** (and its sub-domai
 
 ---
 
-## 5. Security (20%)
+## 5. Security (part of Cluster Architecture, 25%)
 
 | Topic | URL |
 |-------|-----|
@@ -88,7 +88,7 @@ The CKA exam allows one browser tab open to **kubernetes.io** (and its sub-domai
 
 ---
 
-## 6. Troubleshooting (10%)
+## 6. Troubleshooting (30%)
 
 | Topic | URL |
 |-------|-----|

@@ -3,7 +3,7 @@
 Fast refresher of CKAD-covered topics carried into the CKA — key commands and gotchas only, no exercises.
 
 ## Quick Reference — Documentation
-kubernetes.io > Documentation > Reference > kubectl CLI > [kubectl Cheat Sheet](https://kubernetes.io/docs/reference/kubectl/cheatsheet/)
+kubernetes.io > Documentation > Reference > kubectl CLI > [kubectl Cheat Sheet](https://kubernetes.io/docs/reference/kubectl/quick-reference/)
 kubernetes.io > Documentation > Concepts > Workloads > [Pods](https://kubernetes.io/docs/concepts/workloads/pods/)
 kubernetes.io > Documentation > Concepts > Workloads > [Deployments](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/)
 kubernetes.io > Documentation > Concepts > Services, Load Balancing, and Networking > [Service](https://kubernetes.io/docs/concepts/services-networking/service/)

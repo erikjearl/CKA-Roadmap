@@ -49,5 +49,5 @@ Track your confidence across all exercises in **[PROGRESS.md](PROGRESS.md)**.
 |---|---|
 | [`cka-exercises/`](cka-exercises/) | Domain drills — one file per topic area. Start here. See [`cka-exercises/README.md`](cka-exercises/README.md) for the full exercise map. |
 | [`practice/`](practice/) | Exam-prep layer — setup script, bookmarks, mock-exam cadence, day-of checklist, and mistake log. See [`practice/README.md`](practice/README.md). |
-| [`cluster-setup/`](cluster-setup/) | Scripts and notes for standing up a local multi-node study cluster (kubeadm on VMs or kind). |
+| [`cluster-setup/`](cluster-setup/) | Scripts and notes for standing up a local multi-node study cluster (kubeadm on a mixed-arch Raspberry Pi + PC lab, adaptable to VMs or kind). |
 | [`PROGRESS.md`](PROGRESS.md) | Confidence tracker — red / yellow / green per exercise, updated as you drill. |

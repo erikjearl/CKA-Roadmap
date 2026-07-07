@@ -40,8 +40,8 @@ Perform these steps in order from the control-plane node:
 |---|---|
 | `install-cni.sh` | Applies the Flannel CNI manifest (multi-arch); nodes transition to Ready after this step. |
 | `join-node.sh` | Wrapper run on each worker node that executes the `kubeadm join` command passed as its first argument. |
-| `reset-cluster.sh` | Destructively resets a node to pre-kubeadm state via `kubeadm reset`; used by break-fix drills (Task 14) to restore a clean lab. |
-| `backup-etcd.sh` | Takes an etcd snapshot with `etcdctl snapshot save`; used for etcd backup/restore practice (Task 5). |
+| `reset-cluster.sh` | Destructively resets a node to pre-kubeadm state via `kubeadm reset`; used by break-fix drills (see `../practice/break-fix/`) to restore a clean lab. |
+| `backup-etcd.sh` | Takes an etcd snapshot with `etcdctl snapshot save`; used for etcd backup/restore practice (see `../cka-exercises/02-installation-cluster-mgmt.md`). |
 
 ## Safety note
 

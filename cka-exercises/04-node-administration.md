@@ -6,7 +6,7 @@
 kubernetes.io > Documentation > Concepts > Scheduling, Preemption and Eviction > [Taints and Tolerations](https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/)
 kubernetes.io > Documentation > Tasks > Administer a Cluster > [Safely Drain a Node](https://kubernetes.io/docs/tasks/administer-cluster/safely-drain-node/)
 kubernetes.io > Documentation > Tasks > Configure Pods and Containers > [Create static Pods](https://kubernetes.io/docs/tasks/configure-pod-container/static-pod/)
-kubernetes.io > Documentation > Reference > kubectl CLI > [kubectl Cheat Sheet](https://kubernetes.io/docs/reference/kubectl/cheatsheet/)
+kubernetes.io > Documentation > Reference > kubectl CLI > [kubectl Cheat Sheet](https://kubernetes.io/docs/reference/kubectl/quick-reference/)
 
 ---
 
