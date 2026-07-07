@@ -224,10 +224,10 @@ ETCDCTL_API=3 etcdctl snapshot restore /opt/etcd-backup.db \
 
 # Edit it with your preferred editor:
 vi /etc/kubernetes/manifests/etcd.yaml
-# Change the path under volumes > name: etcd-data > hostPath > path
-
-# Also update the --data-dir argument in the container command to match:
-#   - --data-dir=/var/lib/etcd-restore
+# Change ONLY the path under volumes > name: etcd-data > hostPath > path.
+# Leave --data-dir and volumeMounts.mountPath UNCHANGED (both stay /var/lib/etcd).
+# The restored host directory is bind-mounted into the container at the same
+# in-container path etcd already uses, so no other edits are needed.
 
 # Step 3: kubelet detects the manifest change and recreates the etcd pod automatically.
 # Wait 30–60 s for the API server to reconnect to etcd.
@@ -270,10 +270,9 @@ kubeadm certs renew all
 # Step 3: restart the static pod components so they reload the new certs.
 # The simplest approach is to move and restore the manifests (forces kubelet to
 # stop and restart each control-plane pod):
-cd /etc/kubernetes/manifests
-mv kube-apiserver.yaml kube-controller-manager.yaml kube-scheduler.yaml /tmp/
-# Wait ~10 s for pods to terminate, then restore:
-mv /tmp/kube-apiserver.yaml /tmp/kube-controller-manager.yaml /tmp/kube-scheduler.yaml .
+mv /etc/kubernetes/manifests/{kube-apiserver,kube-controller-manager,kube-scheduler,etcd}.yaml /tmp/
+# Wait ~20 s for pods to terminate, then restore:
+mv /tmp/{kube-apiserver,kube-controller-manager,kube-scheduler,etcd}.yaml /etc/kubernetes/manifests/
 
 # Alternatively, on kubeadm clusters you can use:
 # crictl rm -f $(crictl ps -q --name kube-apiserver)   # etc., one by one
