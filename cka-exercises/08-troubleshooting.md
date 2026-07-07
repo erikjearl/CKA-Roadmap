@@ -428,6 +428,13 @@ kubectl set resources deployment/<name> -c <container> \
 # NOTE: for a bare pod, resources are immutable — recreate it instead.
 ```
 
+```bash
+# verify — new pods roll out and stay up (no fresh OOMKilled entry)
+kubectl rollout status deployment/<name>
+kubectl describe pod <new-pod> | grep -A3 "Last State"
+# Expected: no "Reason: OOMKilled" on the NEW pod, restart count stays at 0
+```
+
 </p>
 </details>
 

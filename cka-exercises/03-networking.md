@@ -460,6 +460,7 @@ spec:
 
 ```bash
 # verify — allowed from frontend, still blocked from np-demo itself
+# (web.np-demo is the cross-namespace Service short form: <svc>.<namespace>)
 kubectl -n frontend run test --image=busybox:1.36 --restart=Never --rm -it -- \
   wget -qO- --timeout=2 http://web.np-demo
 # Expected: nginx welcome HTML (allowed)
@@ -477,6 +478,11 @@ kubectl -n np-demo run test --image=busybox:1.36 --restart=Never --rm -it -- \
 ### Restrict a pod's egress to DNS only and prove other egress is blocked `(hard)`
 <details><summary>show</summary>
 <p>
+
+```bash
+# Prerequisite: the np-demo namespace and app=web pod from the
+# default-deny exercise above.
+```
 
 ```yaml
 # Lock a pod down so it can resolve names but cannot open other connections.
@@ -507,12 +513,17 @@ spec:
 ```
 
 ```bash
-# verify — DNS resolves, but outbound HTTP from the selected pod times out
-kubectl -n np-demo exec web -- nslookup kubernetes.default.svc.cluster.local
+# verify — run a throwaway pod carrying the SAME app=web label so the egress
+# policy applies to it (nginx itself ships no nslookup/curl to test with)
+kubectl -n np-demo run egress-test --image=busybox:1.36 --labels=app=web \
+  --restart=Never --rm -it -- nslookup kubernetes.default
 # Expected: resolves successfully (DNS egress allowed)
 
-kubectl -n np-demo exec web -- timeout 2 curl -s http://kubernetes.default.svc.cluster.local
-# Expected: exits non-zero / times out (non-DNS egress blocked)
+# Non-DNS egress: try a raw TCP connect to the API server's ClusterIP:443
+# (find it with: kubectl get svc kubernetes)
+kubectl -n np-demo run egress-test --image=busybox:1.36 --labels=app=web \
+  --restart=Never --rm -it -- sh -c 'nc -z -w 2 10.96.0.1 443 && echo REACHABLE || echo BLOCKED'
+# Expected: BLOCKED (without the policy this prints REACHABLE)
 ```
 
 </p>

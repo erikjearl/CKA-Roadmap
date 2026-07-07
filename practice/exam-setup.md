@@ -125,7 +125,7 @@ kubectl config current-context
 ```
 
 **The ritual:** read task → `use-context` → pin namespace → work → verify →
-reset namespace to default before the next task:
+un-pin the namespace before the next task (so a stale pin can't leak into it):
 
 ```bash
 kubectl config set-context --current --namespace=default
